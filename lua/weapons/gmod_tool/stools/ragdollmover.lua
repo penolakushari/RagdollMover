@@ -2245,7 +2245,7 @@ function TOOL:UpdateGhostPlane(ent, ply)
 end
 
 function TOOL:MakeGhostPlane()
-	local model = "models/hunter/blocks/cube025x025x025.mdl"
+	local model = "models/hunter/plates/plate1x1.mdl"
 	util.PrecacheModel(model)
 
 	if SERVER and not game.SinglePlayer() then return end
