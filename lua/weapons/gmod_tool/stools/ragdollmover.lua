@@ -2241,7 +2241,7 @@ function TOOL:UpdateGhostPlane(ent, ply)
 
 	ent:SetAngles( ply:GetAimVector():Angle():Up():Angle() )
 
-	ent:SetPos(trace.HitPos)
+	ent:SetPos(trace.HitPos - ply:GetAimVector() * 30)
 end
 
 function TOOL:MakeGhostPlane()
