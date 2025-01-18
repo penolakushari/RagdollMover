@@ -15,20 +15,20 @@ function ENT:Initialize()
 
 	self:SetModel("models/hunter/plates/plate1x1.mdl")
 	self:DrawShadow(false)
-    self:PhysicsInit(SOLID_VPHYSICS)
-    self:SetMoveType(MOVETYPE_VPHYSICS)
-    self:SetSolid(SOLID_VPHYSICS)
-    self:SetNotSolid(true)
-    self:SetCollisionGroup(COLLISION_GROUP_WORLD)
+	self:PhysicsInit(SOLID_VPHYSICS)
+	self:SetMoveType(MOVETYPE_VPHYSICS)
+	self:SetSolid(SOLID_VPHYSICS)
+	self:SetNotSolid(true)
+	self:SetCollisionGroup(COLLISION_GROUP_WORLD)
 
 end
 
 function ENT:CanTool(_, _, mode, _, _)
-    return mode == "ragdollmover"
+	return mode == "ragdollmover"
 end
 
 function ENT:CanProperty()
-    return false
+	return false
 end
 
 function ENT:Think()
