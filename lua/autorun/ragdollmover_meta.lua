@@ -16,6 +16,31 @@ local TYPE_BOOL		 = 5
 
 RAGDOLLMOVER = {}
 
+local shouldCallHook = false
+hook.Add("EntityKeyValue", "RGMAllowTool", function(ent, key, val)
+	-- I couldn't find a clean, direct way to add ragdollmover to the m_tblToolsAllowed for both
+	-- loading into a map or loading a save on the same map.
+	if key == "gmod_allowtools" and not string.find(val, "ragdollmover") then
+		shouldCallHook = true
+	end
+
+	-- We can't call the hook at the same time the key is gmod_allowtools because ent.m_tblToolsAllowed 
+	-- must exist (which relies on the gmod_allowtools key), but it doesn't yet
+	if shouldCallHook and key ~= "gmod_allowtools" then
+		hook.Run("RGMAllowTool", ent)
+		shouldCallHook = false
+	end
+end)
+
+-- Some brush entities only allow a select number of tools (see https://wiki.facepunch.com/gmod/Sandbox_Specific_Mapping)
+-- Without this, the gizmos would not be "selectable"
+hook.Add("RGMAllowTool", "RGMAllowTool", function(ent)
+	-- If the table is not filled, we don't want to insert it, as it would make other tools not work
+	if istable(ent.m_tblToolsAllowed) and #ent.m_tblToolsAllowed > 0 then
+		table.insert(ent.m_tblToolsAllowed, "ragdollmover")
+	end
+end)
+
 if SERVER then
 
 util.AddNetworkString("RAGDOLLMOVER_META")
@@ -43,25 +68,6 @@ hook.Add("PlayerDisconnected", "RGMCleanupGizmos", function(pl)
 	RAGDOLLMOVER[pl] = nil
 end)
 
--- Some brush entities only allow a select number of tools (see https://wiki.facepunch.com/gmod/Sandbox_Specific_Mapping)
--- Without this, the gizmos would not be "selectable" 
-local setValue = false
-hook.Add("EntityKeyValue", "RGMAllowTool", function(ent, key, val)
-	-- I couldn't find a clean, direct way to add ragdollmover to the m_tblToolsAllowed for both
-	-- loading into a map or loading a save on the same map.
-	if key == "gmod_allowtools" and not string.find(val, "ragdollmover") then
-		-- If one just does `return val .. " ragdollmover"`, this causes m_tblToolsAllowed
-		-- to not exist for some reason. However, it exists when we look at the next key afterwards
-		setValue = true
-	end
-	-- It would be nice if this field was a set instead of an array.
-	if setValue and istable(ent.m_tblToolsAllowed) and #ent.m_tblToolsAllowed > 0 then
-		table.insert(ent.m_tblToolsAllowed, "ragdollmover")
-		setValue = false
-	end
-	-- m_tblToolsAllowed isn't saved. Hence, this will not insert duplicates of "ragdollmover" per save or map load.
-	-- If ragdollmover is included in the gmod_allowtools key, then the above wouldn't run anyway
-end)
 
 local NumpadBindRot, NumpadBindScale = {}, {}
 local RotKey, ScaleKey = {}, {}
