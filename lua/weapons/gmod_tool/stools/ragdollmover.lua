@@ -1851,7 +1851,7 @@ function TOOL:Deploy()
 end
 
 local function EntityFilter(ent, tool)
-	return ent:GetClass() ~= "func_brush" and ((ent:GetClass() == "prop_ragdoll" or ent:GetClass() == "prop_physics" or ent:GetClass() == "prop_effect") or (tool:GetClientNumber("disablefilter") ~= 0 and not ent:IsWorld()))
+	return ent:GetBrushPlaneCount() == 0 and ((ent:GetClass() == "prop_ragdoll" or ent:GetClass() == "prop_physics" or ent:GetClass() == "prop_effect") or (tool:GetClientNumber("disablefilter") ~= 0 and not ent:IsWorld()))
 end
 
 function TOOL:LeftClick()
