@@ -43,6 +43,16 @@ hook.Add("PlayerDisconnected", "RGMCleanupGizmos", function(pl)
 	RAGDOLLMOVER[pl] = nil
 end)
 
+hook.Add("InitPostEntity", "RGMAllowTool", function()
+	-- Some func_brush entities only allow a select number of tools (see https://wiki.facepunch.com/gmod/Sandbox_Specific_Mapping)
+	-- Without this, the gizmos would not be "selectable" 
+	for _, entity in ents.Iterator() do
+		if entity:GetClass() == "func_brush" and entity.m_tblToolsAllowed then
+			table.insert(entity.m_tblToolsAllowed, "ragdollmover")
+		end
+	end
+end)
+
 local NumpadBindRot, NumpadBindScale = {}, {}
 local RotKey, ScaleKey = {}, {}
 local rgmMode = {}

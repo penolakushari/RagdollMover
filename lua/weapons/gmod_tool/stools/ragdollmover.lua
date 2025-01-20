@@ -1851,7 +1851,7 @@ function TOOL:Deploy()
 end
 
 local function EntityFilter(ent, tool)
-	return ent:GetClass() ~= "rgm_ghost" and ((ent:GetClass() == "prop_ragdoll" or ent:GetClass() == "prop_physics" or ent:GetClass() == "prop_effect") or (tool:GetClientNumber("disablefilter") ~= 0 and not ent:IsWorld()))
+	return ent:GetClass() ~= "func_brush" and ((ent:GetClass() == "prop_ragdoll" or ent:GetClass() == "prop_physics" or ent:GetClass() == "prop_effect") or (tool:GetClientNumber("disablefilter") ~= 0 and not ent:IsWorld()))
 end
 
 function TOOL:LeftClick()
@@ -2224,64 +2224,6 @@ function TOOL:Reload()
 	return false
 end
 
-function TOOL:UpdateGhostPlane(ent, ply)
-
-	if ( not IsValid( ent ) ) then return end
-
-	---@type TraceResult
-	local trace = util.TraceLine({
-		start = ply:EyePos(),
-		endpos = ply:EyePos() + ply:GetAimVector() * 16384,
-		filter = {ply, ent, "prop_ragdoll", "prop_physics"}
-	})
-	if not trace.Hit  then
-		return
-	end
-	ent:SetNotSolid(trace.Entity:GetClass() ~= "func_brush")
-
-	ent:SetAngles( ply:GetAimVector():Angle():Up():Angle() )
-
-	ent:SetPos(trace.HitPos - ply:GetAimVector() * 30)
-end
-
-function TOOL:MakeGhostPlane()
-	local model = "models/hunter/plates/plate1x1.mdl"
-	util.PrecacheModel(model)
-
-	if SERVER and not game.SinglePlayer() then return end
-	if CLIENT and game.SinglePlayer() then return end
-
-	if !IsFirstTimePredicted() then return end
-
-	self:ReleaseGhostEntity()
-
-	if !util.IsValidProp(model) then return end
-
-	if CLIENT then
-		self.GhostEntity = ents.CreateClientProp(model)
-	else
-		self.GhostEntity = ents.Create("rgm_ghost")
-	end
-
-	if not IsValid(self.GhostEntity) then
-		self.GhostEntity = nil
-		return
-	end
-
-	self.GhostEntity:SetPos(vector_origin)
-	self.GhostEntity:SetAngles(angle_zero)
-	self.GhostEntity:Spawn()
-	
-	self.GhostEntity:PhysicsDestroy()
-
-	self.GhostEntity:SetRenderMode(RENDERMODE_TRANSCOLOR)
-	self.GhostEntity:SetColor(color_transparent)
-	
-	local phys = self.GhostEntity:GetPhysicsObject()
-	if IsValid(phys) then
-		phys:SetContents(CONTENTS_SOLID)
-	end
-end
 
 function TOOL:Think()	
 
@@ -2294,11 +2236,6 @@ if SERVER then
 
 	local plTable = RAGDOLLMOVER[pl]
 	
-	if not IsValid(self.GhostEntity) then
-		self:MakeGhostPlane()
-	end
-	self:UpdateGhostPlane(self.GhostEntity, pl)
-
 	local ent = plTable.Entity
 	local axis = plTable.Axis
 
