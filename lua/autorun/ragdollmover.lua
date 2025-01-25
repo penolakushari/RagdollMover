@@ -1133,8 +1133,6 @@ function AdvBoneSelectRender(ent, bonenodes, prevbones, calc)
 	local fovCosine = math.cos(math.rad(fov * 0.65))
 
 	if calc then
-		prevbones = {}
-
 		for i = 0, ent:GetBoneCount() - 1 do
 			local pos = ent:GetBonePosition(i)
 			local dist = 1000

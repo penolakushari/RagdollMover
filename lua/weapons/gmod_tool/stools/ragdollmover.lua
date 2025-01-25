@@ -4892,7 +4892,7 @@ hook.Add("KeyPress", "rgmSwitchSelectionMode", function(pl, key)
 	end
 end)
 
-local BoneColors = nil
+local BoneColors = {}
 local LastSelectThink, LastEnt = 0, nil
 
 function TOOL:DrawHUD()
