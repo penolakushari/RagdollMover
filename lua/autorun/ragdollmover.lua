@@ -1124,8 +1124,13 @@ function AdvBoneSelectRender(ent, bonenodes, prevbones, calc)
 	local mx, my = input.GetCursorPos() -- possible bug on mac https://wiki.facepunch.com/gmod/input.GetCursorPos
 	local nodesExist = bonenodes and bonenodes[ent] and true
 	local bonedistances = {}
-	local eyeVector = LocalPlayer():GetAimVector()
+	local pl = LocalPlayer()
+	local eyeVector = pl:EyeAngles():Forward()
+	local eyePos = pl:EyePos()
 	local mindist, maxdist = nil, nil
+
+	local fov = pl:GetFOV()
+	local fovCosine = math.cos(math.rad(fov * 0.75))
 
 	if calc then
 		prevbones = {}
@@ -1133,7 +1138,7 @@ function AdvBoneSelectRender(ent, bonenodes, prevbones, calc)
 		for i = 0, ent:GetBoneCount() - 1 do
 			local pos = ent:GetBonePosition(i)
 			local dist = 1000
-			if pos:ToScreen().visible then
+			if util.IsPointInCone(pos, eyePos, eyeVector, fovCosine, 131072) then
 				dist = eyeVector:Dot( pos )
 				if not mindist or mindist > dist then mindist = dist end
 				if not maxdist or maxdist < dist then maxdist = dist end
@@ -1153,8 +1158,8 @@ function AdvBoneSelectRender(ent, bonenodes, prevbones, calc)
 		if name == "__INVALIDBONE__" then continue end
 		if nodesExist and (not bonenodes[ent][i]) or false then continue end
 		local pos = ent:GetBonePosition(i)
+		if not util.IsPointInCone(pos, eyePos, eyeVector, fovCosine, 131072) then continue end
 		pos = pos:ToScreen()
-		if not pos.visible then continue end
 		local x, y = pos.x, pos.y
 
 		local dist = math.abs((mx - x)^2 + (my - y)^2)
