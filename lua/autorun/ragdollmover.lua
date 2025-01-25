@@ -1138,12 +1138,14 @@ function AdvBoneSelectRender(ent, bonenodes, prevbones, calc)
 		for i = 0, ent:GetBoneCount() - 1 do
 			local pos = ent:GetBonePosition(i)
 			local dist = 1000
-			if util.IsPointInCone(pos, eyePos, eyeVector, fovCosine, 131072) then
+			local result = util.IsPointInCone(pos, eyePos, eyeVector, fovCosine, 131072)
+			if result then
 				dist = eyeVector:Dot( pos )
 				if not mindist or mindist > dist then mindist = dist end
 				if not maxdist or maxdist < dist then maxdist = dist end
 			end
 			bonedistances[i] = dist
+			prevbones[i] = result
 		end
 		-- maxdist or mindist may be nil if we weren't looking at all the bones. 
 		-- We set them to some numbers to avoid issues with indicing with these
@@ -1157,8 +1159,8 @@ function AdvBoneSelectRender(ent, bonenodes, prevbones, calc)
 		local name = ent:GetBoneName(i)
 		if name == "__INVALIDBONE__" then continue end
 		if nodesExist and (not bonenodes[ent][i]) or false then continue end
+		if not prevbones[i] then continue end
 		local pos = ent:GetBonePosition(i)
-		if not util.IsPointInCone(pos, eyePos, eyeVector, fovCosine, 131072) then continue end
 		pos = pos:ToScreen()
 		local x, y = pos.x, pos.y
 
