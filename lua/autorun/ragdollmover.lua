@@ -1130,7 +1130,7 @@ function AdvBoneSelectRender(ent, bonenodes, prevbones, calc)
 	local mindist, maxdist = nil, nil
 
 	local fov = pl:GetFOV()
-	local fovCosine = math.cos(math.rad(fov * 0.75))
+	local fovCosine = math.cos(math.rad(fov * 0.65))
 
 	if calc then
 		prevbones = {}
