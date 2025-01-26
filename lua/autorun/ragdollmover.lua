@@ -1120,16 +1120,12 @@ concommand.Add("ragdollmover_changelog", function()
 	showChangelog()
 end)
 
-function AdvBoneSelectRender(ent, bonenodes, prevbones, calc)
+function AdvBoneSelectRender(ent, bonenodes, prevbones, calc, eyePos, eyeVector, fov)
 	local mx, my = input.GetCursorPos() -- possible bug on mac https://wiki.facepunch.com/gmod/input.GetCursorPos
 	local nodesExist = bonenodes and bonenodes[ent] and true
 	local bonedistances = {}
-	local pl = LocalPlayer()
-	local eyeVector = pl:EyeAngles():Forward()
-	local eyePos = pl:EyePos()
 	local mindist, maxdist = nil, nil
 
-	local fov = pl:GetFOV()
 	local fovCosine = math.cos(math.rad(fov * 0.65))
 
 	if calc then
