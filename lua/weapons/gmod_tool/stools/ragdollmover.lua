@@ -4911,12 +4911,7 @@ function TOOL:DrawHUD()
 
 	local plviewent = plTable.always_use_pl_view == 1 and pl or (plTable.PlViewEnt ~= 0 and Entity(plTable.PlViewEnt) or nil)
 	local eyepos, eyeang = rgm.EyePosAng(pl, plviewent)
-	
-	-- If we don't have this, then bone nodes won't be visible all the time
-	-- depending on where the player is looking and whether the cursor is visible
-	local viewent = pl:GetViewEntity()
-	local viewSelect = vgui.CursorVisible() and viewent or pl
-	local viewvec = viewent:LocalToWorldAngles(viewSelect:WorldToLocalAngles(pl:GetAimVector():Angle())):Forward()
+	local viewvec = IsValid(plviewent) and plviewent:GetForward() or pl:GetViewEntity():GetForward()
 	local fov = pl:GetFOV()
 
 	if not (self:GetOperation() == 2) and IsValid(ent) and IsValid(axis) and bone then
