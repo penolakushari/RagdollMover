@@ -1236,6 +1236,7 @@ function AdvBoneSelectRender(ent, bonenodes, prevbones, calc, eyePos, eyeVector,
 	local scrH = ScrH() - 100 -- Some padding to keep the bones centered
 	local columns = 0
 
+	local id = #selectedBones
 	-- List the selected bones. If they attempt to overflow through the screen, add the items to another column.
 	for i = 0, #selectedBones - 1 do
 		local yPos = my + (i % maxItemsPerColumn) * (RGMFontSize + 3)
@@ -1259,9 +1260,10 @@ function AdvBoneSelectRender(ent, bonenodes, prevbones, calc, eyePos, eyeVector,
 
 		-- Modify the data structure of the individual selectedBone so we don't have to worry about indexing later on
 		selectedBones[i + 1] = selectedBones[i + 1][2]
+		id = id + selectedBones[i + 1]
 	end
 
-	return prevbones, selectedBones
+	return prevbones, selectedBones, id
 end
 
 function AdvBoneSelectPick(ent, bonenodes)
@@ -1394,7 +1396,7 @@ function AdvBoneSelectRadialRender(ent, bones, bonenodes, isresetmode)
 			draw.SimpleTextOutlined(name, "RagdollMoverFont", uix + xtextoffset, uiy + ytextoffset, color, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, OUTLINE_WIDTH, COLOR_RGMBLACK)
 		end
 
-		return {SelectedBone}
+		return {SelectedBone}, SelectedBone and 1 + SelectedBone or 0
 	else
 		local bone = bones[1]
 		local btype = 2
@@ -1481,7 +1483,7 @@ function AdvBoneSelectRadialRender(ent, bones, bonenodes, isresetmode)
 
 			k = k + 1
 		end
-		return {bone}
+		return {bone}, 1 + bone
 	end
 end
 
@@ -1496,8 +1498,7 @@ function AdvBoneSelectPulse(ent, bones, boneScales)
 
 		local boneMatrix = ent:GetBoneMatrix(bone)
 		if boneMatrix and boneScales[bone] then
-			boneMatrix:SetScale(boneScales[bone] + VECTOR_ONE * 0.05 * math.sin(2.666 * math.pi * RealTime()))
-			ent:SetBoneMatrix(bone, boneMatrix)
+			ent:ManipulateBoneScale(bone, boneScales[bone] + VECTOR_ONE * 0.5 * math.sin(2.666 * math.pi * RealTime()))
 		end
 	end
 end

@@ -4893,7 +4893,7 @@ hook.Add("KeyPress", "rgmSwitchSelectionMode", function(pl, key)
 end)
 
 local BoneColors = {}
-local SelectedBoneScales, LastSelectedBones = {}, 0
+local CurrentBoneScales, SelectedBones, LastId, LastOp = {}, {}, 0, 0
 local LastSelectThink, LastEnt = 0, nil
 
 function TOOL:DrawHUD()
@@ -4953,27 +4953,17 @@ function TOOL:DrawHUD()
 		rgm.DrawSkeleton(ent, nodes)
 	end
 
+	local id = 0
 	if self:GetOperation() == 2 and IsValid(ent) then
 		local timecheck = (thinktime - LastSelectThink) > 0.1
 		local calc = ( not LastEnt or LastEnt ~= ent ) or timecheck
 
-		local selectedBones = {}
 		if self:GetStage() == 0 then
-			BoneColors, selectedBones = rgm.AdvBoneSelectRender(ent, nodes, BoneColors, calc, eyepos, viewvec, fov)
+			BoneColors, SelectedBones, id = rgm.AdvBoneSelectRender(ent, nodes, BoneColors, calc, eyepos, viewvec, fov)
 		else
-			selectedBones = rgm.AdvBoneSelectRadialRender(ent, plTable.SelectedBones, nodes, ResetMode)
+			selectedBones, id = rgm.AdvBoneSelectRadialRender(ent, plTable.SelectedBones, nodes, ResetMode)
 		end
-		if LastSelectedBones ~= #selectedBones then
-			SelectedBoneScales = {}
-			for _, selectedBone in ipairs(selectedBones) do
-				if selectedBone and ent:GetBoneMatrix(selectedBone) then
-					SelectedBoneScales[selectedBone] = ent:GetBoneMatrix(selectedBone):GetScale()
-				end
-			end
-		end
-		rgm.AdvBoneSelectPulse(ent, selectedBones, SelectedBoneScales)
 		
-		LastSelectedBones = #selectedBones
 		LastEnt = ent
 		if timecheck then
 			LastSelectThink = thinktime
@@ -4990,6 +4980,42 @@ function TOOL:DrawHUD()
 		rgm.DrawEntName(HoveredEnt)
 	end
 
+	-- Advanced Bone Select visual indicators
+	local opsDifferent = LastOp ~= self:GetOperation()
+	if IsValid(ent) then
+		-- We need to track the original manipulatebonescale (scales for short) while we also use the ManipulateBoneScale function
+
+		if opsDifferent then
+			if self:GetOperation() == 2 then
+				-- If we began advanced bone select, store the original scales
+				for i = 0, ent:GetBoneCount() - 1 do
+					CurrentBoneScales[i] = ent:GetManipulateBoneScale(i)
+				end
+			else
+				-- If we just left it, restore the original scales
+				for i = 0, ent:GetBoneCount() - 1 do
+					ent:ManipulateBoneScale(i, CurrentBoneScales[i])
+				end
+			end
+		end
+
+		if self:GetOperation() == 2 then
+			-- If we're hovering over a different bone
+			if LastId ~= id then
+				-- Reset the bone to the original scale. This prevents us from adding or subtracting scales from
+				-- previous iterations of using advanced bone select
+				for i = 0, ent:GetBoneCount() - 1 do
+					ent:ManipulateBoneScale(i, CurrentBoneScales[i])
+				end
+			end
+
+			-- Show selected bone, regardless if any are selected
+			rgm.AdvBoneSelectPulse(ent, SelectedBones, CurrentBoneScales)
+		end
+
+		LastId = id
+	end
+	LastOp = self:GetOperation()
 end
 
 end
