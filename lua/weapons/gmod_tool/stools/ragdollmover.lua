@@ -4893,7 +4893,7 @@ hook.Add("KeyPress", "rgmSwitchSelectionMode", function(pl, key)
 end)
 
 local BoneColors = {}
-local CurrentBoneScales, SelectedBones, LastId, LastOp = {}, {}, 0, 0
+local CurrentBoneScales, BoneScaleGroup, LastId, LastOp = {}, {}, 0, 0
 local LastSelectThink, LastEnt = 0, nil
 
 function TOOL:DrawHUD()
@@ -4959,9 +4959,9 @@ function TOOL:DrawHUD()
 		local calc = ( not LastEnt or LastEnt ~= ent ) or timecheck
 
 		if self:GetStage() == 0 then
-			BoneColors, SelectedBones, id = rgm.AdvBoneSelectRender(ent, nodes, BoneColors, calc, eyepos, viewvec, fov)
+			BoneColors, BoneScaleGroup, id = rgm.AdvBoneSelectRender(ent, nodes, BoneColors, calc, eyepos, viewvec, fov)
 		else
-			selectedBones, id = rgm.AdvBoneSelectRadialRender(ent, plTable.SelectedBones, nodes, ResetMode)
+			BoneScaleGroup, id = rgm.AdvBoneSelectRadialRender(ent, plTable.SelectedBones, nodes, ResetMode)
 		end
 		
 		LastEnt = ent
@@ -5010,7 +5010,7 @@ function TOOL:DrawHUD()
 			end
 
 			-- Show selected bone, regardless if any are selected
-			rgm.AdvBoneSelectPulse(ent, SelectedBones, CurrentBoneScales)
+			rgm.AdvBoneSelectPulse(ent, BoneScaleGroup, CurrentBoneScales)
 		end
 
 		LastId = id
