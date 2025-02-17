@@ -4963,7 +4963,7 @@ function TOOL:DrawHUD()
 		else
 			selectedBones = rgm.AdvBoneSelectRadialRender(ent, plTable.SelectedBones, nodes, ResetMode)
 		end
-		if LastSelectedBones ~= selectedBones then
+		if LastSelectedBones ~= #selectedBones then
 			SelectedBoneScales = {}
 			for _, selectedBone in ipairs(selectedBones) do
 				if selectedBone and ent:GetBoneMatrix(selectedBone) then
