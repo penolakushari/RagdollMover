@@ -1256,9 +1256,12 @@ function AdvBoneSelectRender(ent, bonenodes, prevbones, calc, eyePos, eyeVector,
 		end
 
 		draw.SimpleTextOutlined(selectedBones[i + 1][1], "RagdollMoverFont", xPos, yPos, color, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM, OUTLINE_WIDTH, COLOR_RGMBLACK)
+
+		-- Modify the data structure of the individual selectedBone so we don't have to worry about indexing later on
+		selectedBones[i + 1] = selectedBones[i + 1][2]
 	end
 
-	return prevbones
+	return prevbones, selectedBones
 end
 
 function AdvBoneSelectPick(ent, bonenodes)
@@ -1391,6 +1394,7 @@ function AdvBoneSelectRadialRender(ent, bones, bonenodes, isresetmode)
 			draw.SimpleTextOutlined(name, "RagdollMoverFont", uix + xtextoffset, uiy + ytextoffset, color, TEXT_ALIGN_CENTER, TEXT_ALIGN_BOTTOM, OUTLINE_WIDTH, COLOR_RGMBLACK)
 		end
 
+		return {SelectedBone}
 	else
 		local bone = bones[1]
 		local btype = 2
@@ -1477,13 +1481,25 @@ function AdvBoneSelectRadialRender(ent, bones, bonenodes, isresetmode)
 
 			k = k + 1
 		end
-
+		return {bone}
 	end
 end
 
 function AdvBoneSelectRadialPick()
 	if not SelectedBone then return 0 end
 	return SelectedBone
+end
+
+function AdvBoneSelectPulse(ent, bones, boneScales)
+	for _, bone in ipairs(bones) do
+		if not bone then continue end
+
+		local boneMatrix = ent:GetBoneMatrix(bone)
+		if boneMatrix and boneScales[bone] then
+			boneMatrix:SetScale(boneScales[bone] + VECTOR_ONE * 0.05 * math.sin(2.666 * math.pi * RealTime()))
+			ent:SetBoneMatrix(bone, boneMatrix)
+		end
+	end
 end
 
 function DrawBoneConnections(ent, bone)

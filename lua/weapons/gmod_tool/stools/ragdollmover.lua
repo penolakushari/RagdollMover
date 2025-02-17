@@ -4893,6 +4893,7 @@ hook.Add("KeyPress", "rgmSwitchSelectionMode", function(pl, key)
 end)
 
 local BoneColors = {}
+local SelectedBoneScales, LastSelectedBones = {}, 0
 local LastSelectThink, LastEnt = 0, nil
 
 function TOOL:DrawHUD()
@@ -4956,12 +4957,23 @@ function TOOL:DrawHUD()
 		local timecheck = (thinktime - LastSelectThink) > 0.1
 		local calc = ( not LastEnt or LastEnt ~= ent ) or timecheck
 
+		local selectedBones = {}
 		if self:GetStage() == 0 then
-			BoneColors = rgm.AdvBoneSelectRender(ent, nodes, BoneColors, calc, eyepos, viewvec, fov)
+			BoneColors, selectedBones = rgm.AdvBoneSelectRender(ent, nodes, BoneColors, calc, eyepos, viewvec, fov)
 		else
-			rgm.AdvBoneSelectRadialRender(ent, plTable.SelectedBones, nodes, ResetMode)
+			selectedBones = rgm.AdvBoneSelectRadialRender(ent, plTable.SelectedBones, nodes, ResetMode)
 		end
-
+		if LastSelectedBones ~= selectedBones then
+			SelectedBoneScales = {}
+			for _, selectedBone in ipairs(selectedBones) do
+				if selectedBone and ent:GetBoneMatrix(selectedBone) then
+					SelectedBoneScales[selectedBone] = ent:GetBoneMatrix(selectedBone):GetScale()
+				end
+			end
+		end
+		rgm.AdvBoneSelectPulse(ent, selectedBones, SelectedBoneScales)
+		
+		LastSelectedBones = #selectedBones
 		LastEnt = ent
 		if timecheck then
 			LastSelectThink = thinktime
