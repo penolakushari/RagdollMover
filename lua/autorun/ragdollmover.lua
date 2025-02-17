@@ -1496,8 +1496,7 @@ function AdvBoneSelectPulse(ent, bones, boneScales)
 	for _, bone in ipairs(bones) do
 		if not bone then continue end
 
-		local boneMatrix = ent:GetBoneMatrix(bone)
-		if boneMatrix and boneScales[bone] then
+		if boneScales[bone] then
 			ent:ManipulateBoneScale(bone, boneScales[bone] + VECTOR_ONE * 0.05 * math.sin(2.666 * math.pi * RealTime()))
 		end
 	end
