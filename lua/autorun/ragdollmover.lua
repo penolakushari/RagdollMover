@@ -1492,12 +1492,15 @@ function AdvBoneSelectRadialPick()
 	return SelectedBone
 end
 
-function AdvBoneSelectPulse(ent, bones, boneScales)
-	for _, bone in ipairs(bones) do
-		if not bone then continue end
+do
+	local pi, sin = math.pi, math.sin
+	function AdvBoneSelectPulse(ent, bones, boneScales)
+		for _, bone in ipairs(bones) do
+			if not bone then continue end
 
-		if boneScales[bone] then
-			ent:ManipulateBoneScale(bone, boneScales[bone] + VECTOR_ONE * 0.05 * math.sin(2.666 * math.pi * RealTime()))
+			if boneScales[bone] then
+				ent:ManipulateBoneScale(bone, boneScales[bone] + VECTOR_ONE * 0.05 * sin(2.666 * pi * RealTime()))
+			end
 		end
 	end
 end
