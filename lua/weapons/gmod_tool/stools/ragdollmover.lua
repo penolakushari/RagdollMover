@@ -3446,6 +3446,7 @@ NetStarter = {
 local NodeFunctions = {
 
 	function(ent, id) -- 1 nodeReset
+		ClientBoneState:SetBoneScale(id, VECTOR_SCALEDEF)
 		NetStarter.rgmResetAll()
 			net.WriteEntity(ent)
 			net.WriteUInt(id, 10)
@@ -3479,6 +3480,7 @@ local NodeFunctions = {
 	end,
 
 	function(ent, id) -- 5 nodeResetCh
+	ClientBoneState:SetBoneScale(id, VECTOR_SCALEDEF, true)
 		NetStarter.rgmResetAll()
 			net.WriteEntity(ent)
 			net.WriteUInt(id, 10)
