@@ -1031,6 +1031,43 @@ function IsIKBone(tool, ent, bone)
 	return false
 end
 
+-- Format: {[model]: {offsets from parent bone or origin}}
+local DefaultPhysPoses = {}
+
+-- Default pose functions, to help with resetting a physics bone to its default position and rotation with respect to its parent physics bone 
+function GetDefaultPhysPose(entity)
+	local model = entity:GetModel()
+	if DefaultPhysPoses[model] then return DefaultPhysPoses[model] end
+
+	local pose = {}
+
+	local referenceRagdoll = ents.Create("prop_ragdoll")
+	referenceRagdoll:SetModel(model)
+	referenceRagdoll:Spawn()
+	for i = 0, referenceRagdoll:GetPhysicsObjectCount() - 1 do
+		local po = referenceRagdoll:GetPhysicsObjectNum(i)
+		po:Sleep()
+		po:EnableMotion(false)
+
+		local pos, ang = po:GetPos(), po:GetAngles()
+		local parent = GetPhysBoneParent(entity, i)
+		if parent then
+			local ppo = referenceRagdoll:GetPhysicsObjectNum(parent)
+			local ppos, pang = ppo:GetPos(), ppo:GetAngles()
+			pos, ang = WorldToLocal(pos, ang, ppos, pang)
+		else
+			pos, ang = WorldToLocal(pos, ang, referenceRagdoll:GetPos(), referenceRagdoll:GetAngles())
+		end
+
+		pose[i] = {pos = pos, ang = ang, parent = parent}
+	end
+
+	referenceRagdoll:Remove()
+
+	DefaultPhysPoses[model] = pose
+	return pose
+end
+
 if CLIENT then
 
 local COLOR_RGMGREEN = RGM_Constants.COLOR_GREEN
@@ -1358,8 +1395,11 @@ local FeaturesNPhys = {
 local FeaturesPhys = {
 	{ 1, (language.GetPhrase("tool.ragdollmover.resetmenu") .. " " .. language.GetPhrase("tool.ragdollmover.reset")), 1 }, -- 1
 	{ 5, (language.GetPhrase("tool.ragdollmover.resetmenu") .. " " .. language.GetPhrase("tool.ragdollmover.resetchildren")), 1 }, -- 5
+	{ 2, (language.GetPhrase("tool.ragdollmover.resetmenu") .. " " .. language.GetPhrase("tool.ragdollmover.resetpos")), 1 }, -- 2
 	{ 6, (language.GetPhrase("tool.ragdollmover.resetmenu") .. " " .. language.GetPhrase("tool.ragdollmover.resetposchildren")), 1 }, -- 6
+	{ 3, (language.GetPhrase("tool.ragdollmover.resetmenu") .. " " .. language.GetPhrase("tool.ragdollmover.resetrot")), 1 }, -- 3
 	{ 7, (language.GetPhrase("tool.ragdollmover.resetmenu") .. " " .. language.GetPhrase("tool.ragdollmover.resetrotchildren")), 1 }, -- 7
+	{ 4, (language.GetPhrase("tool.ragdollmover.resetmenu") .. " " .. language.GetPhrase("tool.ragdollmover.resetscale")), 1 }, -- 4
 	{ 8, (language.GetPhrase("tool.ragdollmover.resetmenu") .. " " .. language.GetPhrase("tool.ragdollmover.resetscalechildren")), 1 }, -- 8
 	{ 9, (language.GetPhrase("tool.ragdollmover.scalezero") .. " " .. language.GetPhrase("tool.ragdollmover.bone")), 2 }, -- 9
 	{ 10, (language.GetPhrase("tool.ragdollmover.scalezero") .. " " .. language.GetPhrase("tool.ragdollmover.bonechildren")), 2 }, -- 10

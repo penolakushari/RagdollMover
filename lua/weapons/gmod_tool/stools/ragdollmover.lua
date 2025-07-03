@@ -1648,8 +1648,27 @@ local NETFUNC = {
 		if not IsValid(ent) then return end
 		if not rgmCanTool(ent, pl) then return end
 
-		if children then
-			RecursiveBoneFunc(bone, ent, function(bon)
+		local defaultPose = rgm.GetDefaultPhysPose(ent)
+		local function resetAll(bon)
+			local p = rgm.BoneToPhysBone(ent, bon)
+			if p then
+				local offset = defaultPose[p]
+				local po = ent:GetPhysicsObjectNum(p)
+				local ppos, pang
+				if offset.parent then
+					local ppo = ent:GetPhysicsObjectNum(offset.parent)
+					ppos, pang = ppo:GetPos(), ppo:GetAngles()
+				else
+					ppos, pang = ent:GetPos(), ent:GetAngles()
+				end
+				local pos, ang = LocalToWorld(offset.pos, offset.ang, ppos, pang)
+				po:EnableMotion(true)
+				po:Wake()
+				po:SetPos(pos)
+				po:SetAngles(ang)
+				po:EnableMotion(false)
+				po:Wake()
+			else
 				local pos, ang, scale = ent:GetManipulateBonePosition(bon), ent:GetManipulateBoneAngles(bon), ent:GetManipulateBoneScale(bon)
 				pos:Set(vector_origin)
 				ang:Set(angle_zero)
@@ -1658,16 +1677,13 @@ local NETFUNC = {
 				ent:ManipulateBonePosition(bon, pos)
 				ent:ManipulateBoneAngles(bon, ang)
 				ent:ManipulateBoneScale(bon, scale)
-			end)
-		else
-			local pos, ang, scale = ent:GetManipulateBonePosition(bone), ent:GetManipulateBoneAngles(bone), ent:GetManipulateBoneScale(bone)
-			pos:Set(vector_origin)
-			ang:Set(angle_zero)
-			scale:Set(VECTOR_SCALEDEF)
+			end
+		end
 
-			ent:ManipulateBonePosition(bone, pos)
-			ent:ManipulateBoneAngles(bone, ang)
-			ent:ManipulateBoneScale(bone, scale)
+		if children then
+			RecursiveBoneFunc(bone, ent, resetAll)
+		else
+			resetAll(bone)
 		end
 
 		NetStarter.rgmUpdateSliders()
@@ -1687,18 +1703,37 @@ local NETFUNC = {
 		if not IsValid(ent) then return end
 		if not rgmCanTool(ent, pl) then return end
 
-		if children then
-			RecursiveBoneFunc(bone, ent, function(bon)
+		local defaultPose = rgm.GetDefaultPhysPose(ent)
+		local function resetPos(bon)
+			local p = rgm.BoneToPhysBone(ent, bon)
+			if p then
+				local offset = defaultPose[p]
+				local po = ent:GetPhysicsObjectNum(p)
+				local ppos, pang
+				if offset.parent then
+					local ppo = ent:GetPhysicsObjectNum(offset.parent)
+					ppos, pang = ppo:GetPos(), ppo:GetAngles()
+				else
+					ppos, pang = ent:GetPos(), ent:GetAngles()
+				end
+				local pos = LocalToWorld(offset.pos, offset.ang, ppos, pang)
+				po:EnableMotion(true)
+				po:Wake()
+				po:SetPos(pos)
+				po:EnableMotion(false)
+				po:Wake()
+			else
 				local pos = ent:GetManipulateBonePosition(bon)
 				pos:Set(vector_origin)
 
 				ent:ManipulateBonePosition(bon, pos)
-			end)
-		else
-			local pos = ent:GetManipulateBonePosition(bone)
-			pos:Set(vector_origin)
+			end
+		end
 
-			ent:ManipulateBonePosition(bone, pos)
+		if children then
+			RecursiveBoneFunc(bone, ent, resetPos)
+		else
+			resetPos(bone)
 		end
 
 		NetStarter.rgmUpdateSliders()
@@ -1717,18 +1752,37 @@ local NETFUNC = {
 
 		if not rgmCanTool(ent, pl) then return end
 
-		if children then
-			RecursiveBoneFunc(bone, ent, function(bon)
+		local defaultPose = rgm.GetDefaultPhysPose(ent)
+		local function resetAng(bon)
+			local p = rgm.BoneToPhysBone(ent, bon)
+			if p then
+				local offset = defaultPose[p]
+				local po = ent:GetPhysicsObjectNum(p)
+				local ppos, pang
+				if offset.parent then
+					local ppo = ent:GetPhysicsObjectNum(offset.parent)
+					ppos, pang = ppo:GetPos(), ppo:GetAngles()
+				else
+					ppos, pang = ent:GetPos(), ent:GetAngles()
+				end
+				local _, ang = LocalToWorld(offset.pos, offset.ang, ppos, pang)
+				po:EnableMotion(true)
+				po:Wake()
+				po:SetAngles(ang)
+				po:EnableMotion(false)
+				po:Wake()
+			else
 				local ang = ent:GetManipulateBoneAngles(bon)
 				ang:Set(angle_zero)
 
 				ent:ManipulateBoneAngles(bon, ang)
-			end)
-		else
-			local ang = ent:GetManipulateBoneAngles(bone)
-			ang:Set(angle_zero)
+			end
+		end
 
-			ent:ManipulateBoneAngles(bone, ang)
+		if children then
+			RecursiveBoneFunc(bone, ent, resetAng)
+		else
+			resetAng(bone)
 		end
 
 		NetStarter.rgmUpdateSliders()
@@ -1747,18 +1801,17 @@ local NETFUNC = {
 
 		if not rgmCanTool(ent, pl) then return end
 
-		if children then
-			RecursiveBoneFunc(bone, ent, function(bon)
-				local scale = ent:GetManipulateBoneScale(bon)
-				scale:Set(VECTOR_SCALEDEF)
-
-				ent:ManipulateBoneScale(bon, scale)
-			end)
-		else
-			local scale = ent:GetManipulateBoneScale(bone)
+		local function resetScale(bon)
+			local scale = ent:GetManipulateBoneScale(bon)
 			scale:Set(VECTOR_SCALEDEF)
 
-			ent:ManipulateBoneScale(bone, scale)
+			ent:ManipulateBoneScale(bon, scale)
+		end
+
+		if children then
+			RecursiveBoneFunc(bone, ent, resetScale)
+		else
+			resetScale(bone)
 		end
 
 		NetStarter.rgmUpdateSliders()
@@ -1777,18 +1830,17 @@ local NETFUNC = {
 
 		if not rgmCanTool(ent, pl) then return end
 
-		if children then
-			RecursiveBoneFunc(bone, ent, function(bon)
-				local scale = ent:GetManipulateBoneScale(bon)
-				scale:Set(VECTOR_NEARZERO)
-
-				ent:ManipulateBoneScale(bon, scale)
-			end)
-		else
-			local scale = ent:GetManipulateBoneScale(bone)
+		local function resetScale(bon)
+			local scale = ent:GetManipulateBoneScale(bon)
 			scale:Set(VECTOR_NEARZERO)
 
-			ent:ManipulateBoneScale(bone, scale)
+			ent:ManipulateBoneScale(bon, scale)
+		end
+
+		if children then
+			RecursiveBoneFunc(bone, ent, resetScale)
+		else
+			resetScale(bone)
 		end
 
 		NetStarter.rgmUpdateSliders()
