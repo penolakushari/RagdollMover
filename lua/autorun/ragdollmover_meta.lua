@@ -3,12 +3,11 @@
 	Other functionality that isn't part of the rgm module.
 ]]
 
-<<<<<<< HEAD
-=======
+
 resource.AddSingleFile("resource/localization/en/ragdollmover_tools.properties")
 resource.AddSingleFile("resource/localization/en/ragdollmover_ui.properties")
 
->>>>>>> parent of 6689112 (Replace resource.AddSingleFile with resource.AddWorkshop)
+
 local MAX_EDICT_BITS = 13
 
 local TYPE_ENTITY	 = 1
@@ -45,8 +44,6 @@ hook.Add("RGMAllowTool", "RGMAllowTool", function(ent)
 end)
 
 if SERVER then
-
-resource.AddWorkshop("104575630")
 
 util.AddNetworkString("RAGDOLLMOVER_META")
 
