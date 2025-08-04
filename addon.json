@@ -1,7 +1,7 @@
 {
     "ignore": [
         "README.md",
-        ".git/*"
+        ".git/*",
         ".github/*"
     ],
     "tags": [],
