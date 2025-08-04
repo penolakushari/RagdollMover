@@ -20,4 +20,4 @@ jobs:
           vdf: ${{ secrets.STEAM_VDF }}
           id: ${{ secrets.ADDON_ID }}
           changelog: ${{ github.event.release.body }}
-          dir: ./
+          folder: ./
