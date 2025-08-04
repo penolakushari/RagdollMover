@@ -3,18 +3,18 @@ name: Deploy to Workshop
 on:
   workflow_dispatch:
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
 
+jobs:
+  publish:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v3
         with:
           ref: "noworkshop_ver"
-      - uses: vurv78/gmod-upload@v0.1.4
+      - uses: gmod-workshop/workshop-upload@v1.1.0
         with:
-          id: 3530369530
-          changelog: "Deployment via Github to latest changes ( https://github.com/penolakushari/RagdollMover/tree/noworkshop_ver )"
-        env:
-          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
-          STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
+          username: ${{ secrets.STEAM_USERNAME }}
+          vdf: ${{ secrets.STEAM_VDF }}
+          id: ${{ secrets.ADDON_ID }}
+          changelog: ${{ github.event.release.body }}
+          dir: ./
