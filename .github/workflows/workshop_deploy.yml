@@ -1,6 +1,9 @@
 name: Deploy to Workshop
 
 on:
+  push:
+    branches:
+      - 'noworkshop_ver'
   workflow_dispatch:
 
 
