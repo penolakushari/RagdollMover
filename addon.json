@@ -2,6 +2,7 @@
     "ignore": [
         "README.md",
         ".git/*"
+        ".github/*"
     ],
     "tags": [],
     "title": "Ragdoll Mover",
