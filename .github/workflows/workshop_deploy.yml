@@ -14,10 +14,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: "noworkshop_ver"
-      - uses: gmod-workshop/workshop-upload@v1.1.0
+      - uses: gmod-workshop/workshop-upload@v1
         with:
           username: ${{ secrets.STEAM_USERNAME }}
           vdf: ${{ secrets.STEAM_VDF }}
           id: ${{ secrets.ADDON_ID }}
           changelog: ${{ github.event.release.body }}
-          folder: ./
+          dir: ./
