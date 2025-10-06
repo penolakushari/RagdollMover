@@ -3212,6 +3212,15 @@ local function CManipSlider(cpanel, text, mode, axis, min, max, dec, textentry)
 
 	return slider
 end
+local function RGMResetCurBone(mode)
+	mode = mode or 0
+	if not RAGDOLLMOVER[pl] or not RAGDOLLMOVER[pl].Entity then return end
+	local ent, id = RAGDOLLMOVER[pl].Entity, RAGDOLLMOVER[pl].Bone
+
+	if not IsValid(ent) then return end
+	if mode == 3 then ClientBoneState:SetBoneScale(id, VECTOR_SCALEDEF) end
+	NodeFunctions[1 + mode](ent, id)
+end
 local function CManipEntry(cpanel, mode)
 	local parent = vgui.Create("Panel", cpanel)
 	parent:SetTall(20)
@@ -3261,12 +3270,7 @@ local function CManipEntry(cpanel, mode)
 	butt:SetText("#tool.ragdollmover.resetmenu")
 
 	butt.DoClick = function()
-		if not RAGDOLLMOVER[pl] or not RAGDOLLMOVER[pl].Entity then return end
-		local ent, id = RAGDOLLMOVER[pl].Entity, RAGDOLLMOVER[pl].Bone
-
-		if not IsValid(ent) then return end
-		if mode == 3 then ClientBoneState:SetBoneScale(id, VECTOR_SCALEDEF) end
-		NodeFunctions[1 + mode](ent, id)
+		RGMResetCurBone(mode)
 	end
 
 	parent.PerformLayout = function(self)
@@ -3467,15 +3471,6 @@ local function RGMResetAllBones()
 	NetStarter.rgmResetAllBones()
 		net.WriteEntity(RAGDOLLMOVER[pl].Entity)
 	net.SendToServer()
-end
-
-local function RGMResetCurBone()
-	if not RAGDOLLMOVER[pl] or not RAGDOLLMOVER[pl].Entity then return end
-	local ent, id = RAGDOLLMOVER[pl].Entity, RAGDOLLMOVER[pl].Bone
-
-	if not IsValid(ent) then return end
-	ClientBoneState:SetBoneScale(id, VECTOR_SCALEDEF)
-	NodeFunctions[1](ent, id)
 end
 
 local function AddHBar(self) -- There is no horizontal scrollbars in gmod, so I guess we'll override vertical one from GMod - I think this is incorrect now, but I'll keep it
