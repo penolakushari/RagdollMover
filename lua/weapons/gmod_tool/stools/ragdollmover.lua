@@ -1682,7 +1682,7 @@ local NETFUNC = {
 				if not posLocks[p] then
 					po:SetPos(pos)
 				end
-				if not angLocks[p] then
+				if not angLocks[p] and rgm.GetPhysBoneParent(ent, p) then
 					po:SetAngles(ang)
 				end
 				po:EnableMotion(false)
@@ -1778,7 +1778,9 @@ local NETFUNC = {
 		local defaultPose = rgm.GetDefaultPhysPose(ent)
 		local function resetAng(bon)
 			local p = rgm.BoneToPhysBone(ent, bon)
-			if p and not lockTable[p] then
+			-- Only reset angles if we are a child of a bone, i.e. we're not a root bone
+			-- Same logic applies for `rgmResetAll`
+			if p and not lockTable[p] and rgm.GetPhysBoneParent(ent, p) then
 				local offset = defaultPose[p]
 				local po = ent:GetPhysicsObjectNum(p)
 				local ppos, pang
