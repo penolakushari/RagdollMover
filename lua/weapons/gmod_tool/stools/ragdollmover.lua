@@ -21,6 +21,7 @@ TOOL.ClientConVar["drawskeleton"] = 0
 TOOL.ClientConVar["snapenable"] = 0
 TOOL.ClientConVar["snapamount"] = 30
 TOOL.ClientConVar["drawsphere"] = 0
+TOOL.ClientConVar["resetphys"] = 1
 
 TOOL.ClientConVar["ik_leg_L"] = 0
 TOOL.ClientConVar["ik_leg_R"] = 0
@@ -1662,11 +1663,12 @@ local NETFUNC = {
 
 		local posLocks = (RAGDOLLMOVER[pl] and RAGDOLLMOVER[pl].rgmPosLocks and RAGDOLLMOVER[pl].rgmPosLocks[ent]) or {}
 		local angLocks = (RAGDOLLMOVER[pl] and RAGDOLLMOVER[pl].rgmPosLocks and RAGDOLLMOVER[pl].rgmAngLocks[ent]) or {}
+		local resetPhys = tobool(pl:GetInfo("ragdollmover_resetphys"))
 
 		local defaultPose = rgm.GetDefaultPhysPose(ent)
 		local function resetAll(bon)
 			local p = rgm.BoneToPhysBone(ent, bon)
-			if p and (not posLocks[p] or not angLocks[p]) then
+			if resetPhys and p and (not posLocks[p] or not angLocks[p]) then
 				local offset = defaultPose[p]
 				local po = ent:GetPhysicsObjectNum(p)
 				local ppos, pang
@@ -1722,12 +1724,13 @@ local NETFUNC = {
 		if not IsValid(ent) then return end
 		if not rgmCanTool(ent, pl) then return end
 
+		local resetPhys = tobool(pl:GetInfo("ragdollmover_resetphys"))
 		local lockTable = (RAGDOLLMOVER[pl] and RAGDOLLMOVER[pl].rgmPosLocks and RAGDOLLMOVER[pl].rgmPosLocks[ent]) or {}
 
 		local defaultPose = rgm.GetDefaultPhysPose(ent)
 		local function resetPos(bon)
 			local p = rgm.BoneToPhysBone(ent, bon)
-			if p and not lockTable[p] then
+			if resetPhys and p and not lockTable[p] then
 				local offset = defaultPose[p]
 				local po = ent:GetPhysicsObjectNum(p)
 				local ppos, pang
@@ -1774,13 +1777,14 @@ local NETFUNC = {
 		if not rgmCanTool(ent, pl) then return end
 
 		local lockTable = (RAGDOLLMOVER[pl] and RAGDOLLMOVER[pl].rgmPosLocks and RAGDOLLMOVER[pl].rgmAngLocks[ent]) or {}
+		local resetPhys = tobool(pl:GetInfo("ragdollmover_resetphys"))
 
 		local defaultPose = rgm.GetDefaultPhysPose(ent)
 		local function resetAng(bon)
 			local p = rgm.BoneToPhysBone(ent, bon)
 			-- Only reset angles if we are a child of a bone, i.e. we're not a root bone
 			-- Same logic applies for `rgmResetAll`
-			if p and not lockTable[p] and rgm.GetPhysBoneParent(ent, p) then
+			if resetPhys and p and not lockTable[p] and rgm.GetPhysBoneParent(ent, p) then
 				local offset = defaultPose[p]
 				local po = ent:GetPhysicsObjectNum(p)
 				local ppos, pang
@@ -4860,6 +4864,8 @@ function TOOL.BuildCPanel(CPanel)
 
 		local physmovecheck = CCheckBox(Col4, "#tool.ragdollmover.physmove", "ragdollmover_physmove")
 		physmovecheck:SetToolTip("#tool.ragdollmover.physmovetip")
+		local resetphyscheck = CCheckBox(Col4, "#tool.ragdollmover.resetphys", "ragdollmover_resetphys")
+		resetphyscheck:SetToolTip("#tool.ragdollmover.resetphystip")
 		RGMMakeAngleSnap(Col4)
 		RGMMakeResetLocksPanel(Col4) 
 		
