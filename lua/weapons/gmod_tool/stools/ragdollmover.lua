@@ -1688,8 +1688,8 @@ local NETFUNC = {
 
 				ent:ManipulateBonePosition(bon, pos)
 				ent:ManipulateBoneAngles(bon, ang)
-				ent:ManipulateBoneScale(bon, scale)
 			end
+			ent:ManipulateBoneScale(bon, VECTOR_SCALEDEF)
 		end
 
 		if children then
@@ -3250,6 +3250,7 @@ local function CManipSlider(cpanel, text, mode, axis, min, max, dec, textentry)
 
 		if mode == 3 and value == 0 then value = 0.01 end
 
+		ClientBoneState:UpdateBoneScales()
 		NetStarter.rgmAdjustBone()
 			net.WriteInt(mode, 3)
 			net.WriteInt(axis, 3)
@@ -3273,6 +3274,11 @@ local function RGMResetCurBone(mode)
 	if mode == 3 then ClientBoneState:SetBoneScale(id, VECTOR_SCALEDEF) end
 	NodeFunctions[1 + mode](ent, id)
 end
+local modeToString = {
+	"tool.ragdollmover.resetpos",
+	"tool.ragdollmover.resetrot",
+	"tool.ragdollmover.resetscale",
+}
 local function CManipEntry(cpanel, mode)
 	local parent = vgui.Create("Panel", cpanel)
 	parent:SetTall(20)
@@ -3314,23 +3320,29 @@ local function CManipEntry(cpanel, mode)
 		RGMClearOffsets()
 	end
 
-	entry.SetVisible = function(self, state)
-		parent:SetVisible(state)
+	entry.Phys = false
+	entry.SetVisible = function(self, state, isPhys)
+		-- parent:SetVisible(state)
+		entry.Phys = isPhys
 	end
 
 	local butt = vgui.Create("DButton", parent)
-	butt:SetText("#tool.ragdollmover.resetmenu")
+	butt:SetText(Format("%s %s", language.GetPhrase("#tool.ragdollmover.resetmenu"), language.GetPhrase(modeToString[mode])))
 
 	butt.DoClick = function()
+		print(mode)
 		RGMResetCurBone(mode)
 	end
 
 	parent.PerformLayout = function(self)
-		entry:SetPos(0, 0)
-		entry:SetSize(parent:GetWide() *0.6, 20)
 
-		butt:SetPos(parent:GetWide() *0.6, 0)
-		butt:SetSize(parent:GetWide() *0.4, 20)
+		local buttonWidth = entry.Phys and 0 or 0.6
+		
+		entry:SetPos(0, 0)
+		entry:SetSize(parent:GetWide() * buttonWidth, 20)
+
+		butt:SetPos(parent:GetWide() * buttonWidth, 0)
+		butt:SetSize(parent:GetWide() * (1 - buttonWidth), 20)
 	end
 
 	entry.Sliders = {}
@@ -5177,11 +5189,11 @@ local NETFUNC = {
 			Pos1:SetVisible(inverted)
 			Pos2:SetVisible(inverted)
 			Pos3:SetVisible(inverted)
-			Entry1:SetVisible(inverted)
+			Entry1:SetVisible(inverted, bool)
 			Rot1:SetVisible(inverted)
 			Rot2:SetVisible(inverted)
 			Rot3:SetVisible(inverted)
-			Entry2:SetVisible(inverted)
+			Entry2:SetVisible(inverted, bool)
 		end
 
 		local isphys = net.ReadBool()
